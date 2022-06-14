@@ -59,19 +59,22 @@ class PostListView(View):
             try:
                 post_body = json.loads(request.body)
             except ValueError:
-                return HttpResponseBadRequest("Incorrect Request format")
+                return HttpResponseBadRequest("Incorrect request format")
             try:
                 title = post_body['title']
                 content = post_body['content']
             except KeyError:
-                return HttpResponseBadRequest("Missing Parameters")
+                return HttpResponseBadRequest("Missing parameters")
+            if (not title) or (not content):
+                return HttpResponseBadRequest(
+                    "Title and Content can not be empty")
             user = request.user
             post = Post.objects.create(
                 title=title,
                 content=content,
                 user=user
             )
-            return HttpResponse("Post Successfuly Created", status=201)
+            return HttpResponse("Post successfuly created", status=201)
         else:
             return HttpResponseBadRequest("Unsupported content_type found.")
 
@@ -129,7 +132,7 @@ class PostDetailView(View):
         except ValueError:
             return HttpResponseBadRequest("Given id is not a number")
         post.delete()
-        return HttpResponse("Post Successfuly Deleted", status=200)
+        return HttpResponse("Post successfuly deleted", status=200)
 
 
 class CommentListView(View):
@@ -143,12 +146,12 @@ class CommentListView(View):
             try:
                 post_body = json.loads(request.body)
             except ValueError:
-                return HttpResponseBadRequest("Incorrect Request format")
+                return HttpResponseBadRequest("Incorrect request format")
             try:
                 post_id = post_body['post_id']
                 description = post_body['description']
             except KeyError:
-                return HttpResponseBadRequest("Missing Parameters")
+                return HttpResponseBadRequest("Missing parameters")
             user = request.user
             try:
                 comment = Comment.objects.create(
@@ -158,7 +161,7 @@ class CommentListView(View):
                 )
             except IntegrityError:
                 return HttpResponseBadRequest("Invalid Post")
-            return HttpResponse("Comment Successfuly Created", status=201)
+            return HttpResponse("Comment successfuly created", status=201)
         else:
             return HttpResponseBadRequest("Unsupported content_type found.")
 
@@ -174,11 +177,11 @@ class LikeListView(View):
             try:
                 post_body = json.loads(request.body)
             except ValueError:
-                return HttpResponseBadRequest("Incorrect Request format")
+                return HttpResponseBadRequest("Incorrect request format")
             try:
                 post_id = post_body['post_id']
             except KeyError:
-                return HttpResponseBadRequest("Missing Parameters")
+                return HttpResponseBadRequest("Missing parameters")
             user = request.user
             try:
                 like = Like.objects.create(
@@ -187,7 +190,7 @@ class LikeListView(View):
                 )
             except IntegrityError:
                 return HttpResponseBadRequest(
-                    "Already Liked This Post Or Invalid Post")
+                    "Already liked this Post or invalid Post")
             return HttpResponse("Like Successfuly Created", status=201)
         else:
             return HttpResponseBadRequest("Unsupported content_type found.")
